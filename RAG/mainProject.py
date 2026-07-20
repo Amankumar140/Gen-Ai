@@ -1,0 +1,75 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from langchain_mistralai import MistralAIEmbeddings, ChatMistralAI
+from langchain_community.vectorstores import Chroma
+from langchain_core.prompts import ChatPromptTemplate
+
+embedding_model = MistralAIEmbeddings(model="mistral-embed")
+
+vector_store = Chroma(
+    persist_directory="chroma-db",
+    embedding_function=embedding_model
+)
+
+retriever = vector_store.as_retriever(
+    search_type="mmr",
+    search_kwargs={
+        "k": 4,
+        "fetch_k": 10,
+        "lambda_mult": 0.5
+    }
+)
+
+llm = ChatMistralAI(model="mistral-small-2506")
+
+# prompt template
+
+prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+        You are a helpful ai assistant.
+        Use only the provided context to answer the question.
+        
+        if the answer is not present in the context.
+        say "I couldn't find the answer in the document"
+      """,
+        ),
+        (
+            "human",
+            """
+         Context={context}
+         Question={question}
+         """,
+        ),
+    ]
+)
+
+
+print("--------------------------------RAG----------------------------------------")
+
+
+print("Enter 0 to exit")
+
+while True:
+    query=input("You: ")
+    if query=="0":
+        break
+    
+    docs=retriever.invoke(query)
+    
+    context= "\n\n".join(
+        [doc.page_content for doc in docs]
+    )
+    
+    final_prompt = prompt.invoke({
+    "context": context,
+    "question": query
+    })
+    
+    
+    response=llm.invoke(final_prompt)
+    print(f"\n AI : {response.content}")

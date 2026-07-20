@@ -1,0 +1,76 @@
+RAG (Retrieval-Augmented Generation) System Notes
+
+RAG combines document retrieval with generative AI to provide accurate, source-grounded responses.
+- Retrieval: Fetch relevant documents from a knowledge base
+- Augmentation: Enhance the prompt with retrieved context
+- Generation: Use LLM to generate response based on context
+
+2. DOCUMENT LOADERS
+
+Responsible for extracting text from various document formats:
+- PDF files: Extract text, tables, metadata
+- TXT files: Read plain text
+- DOCX files: Parse Word documents
+- HTML files: Extract content from web pages
+- Markdown: Parse structured markdown files
+- CSV/JSON: Load structured data
+
+3. TEXT CHUNKING
+
+Break large documents into manageable pieces:
+- Chunk size: 500-1000 tokens (context dependent)
+- Overlap: 10-20% to maintain context continuity
+- Split by semantics: Preserve paragraph/section boundaries
+- Metadata: Attach source info to each chunk
+
+4. EMBEDDING & VECTORIZATION
+
+Convert text to numerical representations:
+- Embedding models: OpenAI, HuggingFace, Sentence Transformers
+- Dimension: 384-1536 depending on model
+- Normalize vectors for similarity search
+- Store in vector database (Pinecone, Weaviate, Chroma, FAISS)
+
+5. RETRIEVAL MECHANISM
+
+Query processing and document retrieval:
+- Convert user query to embedding
+- Perform similarity search (cosine, dot product)
+- Retrieve top-k relevant documents (k=3-5)
+- Re-rank results by relevance score
+- Optional: Apply filters by metadata/date
+
+6. PROMPT ENGINEERING
+
+Construct effective prompts with context:
+- System prompt: Define assistant role and guidelines
+- Context: Include retrieved documents
+- Query: User question
+- Instructions: Specify response format
+- Example: Few-shot prompts for consistency
+
+7. LLM INFERENCE
+
+Generate response using language model:
+- Models: GPT-4, Claude, LLaMA, Mistral
+- Temperature: 0.3-0.7 for factual answers
+- Max tokens: Set reasonable limits
+- Stop sequences: Control output length
+- Validate against source documents
+
+8. QUALITY & EVALUATION
+
+Measure RAG system effectiveness:
+- Retrieval accuracy: Are relevant docs retrieved?
+- Answer relevance: Does response answer the query?
+- Citation correctness: Are sources accurate?
+- Hallucination rate: Minimize false information
+- Latency: Monitor performance
+
+9. VECTOR DATABASE CONSIDERATIONS
+
+- Scalability: Handle millions of embeddings
+- Indexing: Efficient similarity search
+- Metadata filtering: Filter before search
+- Real-time updates: Add/update documents
+- Backup & persistence: Data protection
